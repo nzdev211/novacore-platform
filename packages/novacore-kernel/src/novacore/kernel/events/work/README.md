@@ -1,3 +1,5 @@
+# work
+
 ## Purpose
 Describe the purpose of the $(basename $d) module.
 
@@ -19,4 +21,4 @@ Describe the purpose of the $(basename $d) module.
 
 ## Future Evolution
 - Outline planned improvements or extensions.
-
+EOF
