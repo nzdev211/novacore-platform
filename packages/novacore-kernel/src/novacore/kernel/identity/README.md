@@ -1,17 +1,34 @@
-# identity
+# Identity
 
-# Work
+## Purpose
 
-Purpose
+The Identity bounded context provides immutable, type-safe identifiers for every domain entity in the Novacore Kernel.
 
-Responsibilities
+## Responsibilities
 
-Public Types
+- Define the language of identity.
+- Provide immutable value objects.
+- Prevent identity confusion across domain types.
 
-Depends On
+## Public Types
 
-Used By
+- Identifier
+- ConversationId
+- ExecutionId
+- WorkId
+- WorkerId
+- RequestId
+- TraceId
 
-Rules
+## Depends On
 
-Future Evolution
+Nothing (Layer L0)
+
+## Used By
+
+Every bounded context.
+
+## Related Documents
+
+- SPECIFICATION.md
+- TEST_PLAN.md
