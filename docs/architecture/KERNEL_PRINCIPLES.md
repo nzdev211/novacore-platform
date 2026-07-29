@@ -9,3 +9,44 @@ Adapters integrate; they never define domain concepts.
 Creative Studio validates every abstraction before it becomes part of the Kernel.
 
 Whenever we're unsure about a future design, we don't ask "what's easier to code?"—we ask "does it respect the Kernel Principles?"
+
+L0
+
+Identity
+
+──────────────────────────
+
+L1
+
+Capability
+
+──────────────────────────
+
+L2
+
+Work
+Worker
+
+──────────────────────────
+
+L3
+
+Contracts
+
+──────────────────────────
+
+L4
+
+Conversation
+
+──────────────────────────
+
+L5
+
+Execution
+
+──────────────────────────
+
+L6
+
+Events
