@@ -1,9 +1,5 @@
-Business meaning outlives technology.
+1. Business meaning outlives technology.
 
-Simplicity compounds.
+2. Language defines architecture.
 
-Architecture is a long-term investment.
-
-Every abstraction must justify its existence.
-
-Specifications are the source of truth.
+3. Specifications are the source of truth
