@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "novacore-anthropic"
+version = "0.1.0"
+description = "Anthropic Claude API adapter for Novacore Platform"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+anthropic = ["anthropic"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = true
+include = ["novacore.anthropic*"]
+
