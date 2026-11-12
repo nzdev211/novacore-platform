@@ -15,6 +15,7 @@
 | `novacore-google-adk` | Google ADK agent integration | Outbound/provider adapter |
 | `novacore-openai` | OpenAI API integration for GPT models | Outbound/model-provider adapter |
 | `novacore-anthropic` | Anthropic API integration for Claude models | Outbound/model-provider adapter |
+| `novacore-google-adk` | Google ADK agent execution integration | Outbound/agent-framework adapter |
 
 ## Persistence and supporting packages
 
@@ -34,6 +35,9 @@ Use one package per independently versioned integration or infrastructure provid
 
 - Distribution: `novacore-openai`; import namespace: `novacore.openai`
 - Distribution: `novacore-anthropic`; import namespace: `novacore.anthropic`
+- Distribution: `novacore-google-adk`; import namespace: `novacore.google_adk`
+- Distribution: `novacore-firestore`; import namespace: `novacore.firestore`
+- Distribution: `novacore-postgres`; import namespace: `novacore.postgres`
 
 These are separate distributions and can be installed independently. The shared `novacore` namespace is intentionally a PEP 420 namespace package.
 
