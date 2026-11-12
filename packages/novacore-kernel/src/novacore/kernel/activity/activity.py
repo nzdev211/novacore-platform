@@ -69,8 +69,3 @@ class Activity:
 
     def __hash__(self) -> int:
         return hash(self.id)
-@dataclass(frozen=True, slots=True)
-class Activity:
-    id: ActivityId
-    context: Context
-    objective: Objective | None
