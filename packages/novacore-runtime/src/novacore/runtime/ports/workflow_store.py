@@ -12,7 +12,8 @@ from novacore.kernel.objective import Objective
 from novacore.kernel.planning import Planning
 from novacore.kernel.request import Request
 from novacore.kernel.work import Work
-from novacore.kernel.identity import ActivityId
+from novacore.kernel.identity import ActivityId, ExecutionId
+from .execution_lifecycle import ExecutionRecord, ExecutionStatus
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +29,7 @@ class WorkflowSnapshot:
     contracts: tuple[Contract, ...]
     assignments: tuple[Assignment, ...]
     executions: tuple[Execution, ...]
+    execution_records: tuple[ExecutionRecord, ...] = ()
 
 
 @runtime_checkable
@@ -44,6 +46,16 @@ class WorkflowStore(Protocol):
 
     def save_execution(self, execution: Execution) -> None:
         """Persist an execution identity before invoking its worker."""
+        ...
+
+    def transition_execution(
+        self, record: ExecutionRecord, *, expected_status: ExecutionStatus | None
+    ) -> None:
+        """Atomically create/update lifecycle state if the current status matches."""
+        ...
+
+    def load_execution(self, execution_id: ExecutionId) -> ExecutionRecord | None:
+        """Load lifecycle metadata for one execution attempt."""
         ...
 
     def load_workflow(self, activity_id: ActivityId) -> WorkflowSnapshot | None:

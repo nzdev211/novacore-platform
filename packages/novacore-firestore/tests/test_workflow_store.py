@@ -72,6 +72,10 @@ class FakeTransaction:
 
     def set(self, ref, payload):
         self.writes.append((ref.collection_name, ref.document_id, payload))
+        ref.collection.documents[ref.document_id] = payload
+
+    def get(self, ref):
+        return [FakeSnapshot(ref.collection.documents.get(ref.document_id))]
 
 
 class FakeClient:
@@ -238,4 +242,56 @@ def test_load_workflow_rehydrates_all_related_records(records):
 def test_load_workflow_returns_none_when_activity_is_missing():
     store = FirestoreWorkflowStore(client=FakeClient())
     assert store.load_workflow(ActivityId("missing")) is None
+
+
+def test_execution_lifecycle_uses_compare_and_set(fake_firestore, records):
+    from novacore.runtime.ports import ExecutionRecord, ExecutionStatus, PersistenceError
+
+    client = FakeClient()
+    store = FirestoreWorkflowStore(client=client)
+    r = records
+    pending = ExecutionRecord(
+        r["execution"].id, r["assignment"].id, ExecutionStatus.PENDING,
+        datetime(2026, 11, 12, tzinfo=timezone.utc),
+    )
+    store.transition_execution(pending, expected_status=None)
+    running = ExecutionRecord(
+        r["execution"].id, r["assignment"].id, ExecutionStatus.RUNNING,
+        datetime(2026, 11, 12, tzinfo=timezone.utc),
+    )
+    store.transition_execution(running, expected_status=ExecutionStatus.PENDING)
+    assert store.load_execution(r["execution"].id).status is ExecutionStatus.RUNNING
+    with pytest.raises(PersistenceError, match="state conflict"):
+        store.transition_execution(running, expected_status=ExecutionStatus.PENDING)
+
+
+def test_idempotency_key_is_reserved_once_across_execution_ids(fake_firestore, records):
+    from novacore.runtime.ports import ExecutionRecord, ExecutionStatus, PersistenceError
+    client = FakeClient()
+    store = FirestoreWorkflowStore(client=client)
+    r = records
+    now = datetime(2026, 11, 12, tzinfo=timezone.utc)
+    first = ExecutionRecord(
+        r["execution"].id, r["assignment"].id, ExecutionStatus.PENDING, now,
+        idempotency_key="storyboard-shot-01-v1",
+    )
+    store.transition_execution(first, expected_status=None)
+    running = ExecutionRecord(
+        r["execution"].id, r["assignment"].id, ExecutionStatus.RUNNING, now,
+        idempotency_key="storyboard-shot-01-v1",
+    )
+    store.transition_execution(running, expected_status=ExecutionStatus.PENDING)
+
+    second_id = ExecutionId("execution/duplicate")
+    second = ExecutionRecord(
+        second_id, r["assignment"].id, ExecutionStatus.PENDING, now,
+        idempotency_key="storyboard-shot-01-v1",
+    )
+    store.transition_execution(second, expected_status=None)
+    duplicate_running = ExecutionRecord(
+        second_id, r["assignment"].id, ExecutionStatus.RUNNING, now,
+        idempotency_key="storyboard-shot-01-v1",
+    )
+    with pytest.raises(PersistenceError, match="already been reserved"):
+        store.transition_execution(duplicate_running, expected_status=ExecutionStatus.PENDING)
 
