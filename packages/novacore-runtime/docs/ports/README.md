@@ -1,19 +1,26 @@
-# Runtime Ports
+# Runtime Ports — Phase 12
 
-This directory records the contract boundaries for external integrations. It is a design specification, not yet an executable API.
+The first executable Runtime port set is intentionally small:
 
-## Port groups
+- `ModelGenerator`: direct provider generation.
+- `AgentExecutor`: agent-framework execution.
+- `WorkerDirectory`: capability-based worker discovery.
+- `WorkflowStore`: atomic initial workflow persistence and execution identity persistence.
 
-1. Model generation: OpenAI and Anthropic API integrations.
-2. Agent execution: Google ADK integration.
-3. Persistence: Firestore and PostgreSQL implementations.
-4. Inbound application entry points: FastAPI invokes Runtime use cases; it is not a Runtime dependency.
+These are Runtime-owned protocols. Provider/database SDK types must not cross the boundary.
 
-## Contract design rules
+## Explicitly deferred
 
-- Model generation and agent execution are separate capabilities. Do not force Google ADK into a chat-completion-shaped interface.
-- Keep provider-specific request/response types inside provider adapters.
-- Define only the common semantics actually required by Creative Studio.
-- Persistence contracts should be defined around approved domain operations and consistency needs, not around database CRUD convenience.
-- No SDK imports, network calls, credentials, or database drivers in this package.
+Streaming, cancellation, async APIs, tool-call schemas, model-specific options, agent progress events,
+human-review persistence, resource/blob storage, and revision policy are not specified by the first
+single-shot workflow. Add them only when the next concrete use case requires them.
+
+## Orchestrationls
+
+`StoryboardWorkflowService` is the first vertical slice. It validates the command, creates
+Kernel records, selects the first worker returned that satisfies every required capability,
+persists the initial workflow and execution record, then invokes `AgentExecutor`.
+
+The service does not generate IDs, update Activity lifecycle after execution, persist agent
+output, or implement human approval. Those require explicit decisions in a later phase.
 
