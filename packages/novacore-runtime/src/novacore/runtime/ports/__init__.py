@@ -10,6 +10,7 @@ from .errors import (
 from .model_generation import ModelGenerationRequest, ModelGenerationResponse, ModelGenerator
 from .worker_directory import WorkerDirectory
 from .workflow_store import WorkflowSnapshot, WorkflowStore
+from .human_review import ReviewRecord, ReviewStatus, ReviewStore
 
 __all__ = [
     "AgentExecutionError",
@@ -24,6 +25,9 @@ __all__ = [
     "ModelGenerator",
     "PersistenceError",
     "RuntimePortError",
+    "ReviewRecord",
+    "ReviewStatus",
+    "ReviewStore",
     "WorkerDirectory",
     "WorkerNotFoundError",
     "WorkflowSnapshot",
