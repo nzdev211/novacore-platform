@@ -1,61 +1,32 @@
-# novacore-fastapi
+# novacore-fastapi — Phase 26 addition
 
-FastAPI inbound adapter for Novacore Platform.
+Phase 26 adds an optional authenticated revision endpoint alongside the Phase 23 review routes and Phase 25 review-context route.
 
-## Human review routes (Phase 23)
-
-The package exposes `create_human_review_router`, which wires the Phase 22
-Runtime `HumanReviewService` and `ReviewStore` into authenticated HTTP routes.
-
-Install:
-
-```bash
-pip install 'novacore-fastapi[fastapi]'
-```
-
-Example composition:
+## Revision route
 
 ```python
-from fastapi import FastAPI, Depends
-from novacore.fastapi import create_human_review_router
-from novacore.runtime.services import HumanReviewService
-from novacore.firestore import FirestoreReviewStore
+from novacore.fastapi import create_revision_router
 
-review_store = FirestoreReviewStore()
-review_service = HumanReviewService(review_store)
-
-def current_user_id():
-    # Replace with your authentication provider integration.
-    # Must return the authenticated user's stable ID.
-    ...
-
-app = FastAPI()
-app.include_router(
-    create_human_review_router(
-        review_service=review_service,
-        review_store=review_store,
-        authenticate_reviewer=current_user_id,
-    )
-)
+app.include_router(create_revision_router(
+    create_revision=create_revision,
+    authenticate_creator=authenticate_creator,
+))
 ```
 
-### Routes
+The host application supplies both callbacks. `authenticate_creator` returns the authenticated creator's stable ID. `create_revision` performs resource authorization, requires the source review to be `CHANGES_REQUESTED`, orchestrates a new Runtime execution, and creates a new pending review after successful generation.
 
-| Method | Route | Purpose |
-|---|---|---|
-| POST | `/reviews` | Create a pending review |
-| GET | `/reviews/{review_id}` | Retrieve review state |
-| POST | `/reviews/{review_id}/decision` | Approve, request changes, or reject |
+`POST /reviews/{review_id}/revisions`
 
-All routes require the injected authentication dependency. Reviewer identity is
-derived from that dependency, never from the request body.
+Request body:
 
-The application remains responsible for authorization (for example, whether
-the authenticated reviewer may review a particular Activity). This adapter
-does not provide authentication, role management, CSRF protection, or tenant
-isolation. Add those policies in the composition/application layer before
-exposing these endpoints publicly.
+```json
+{
+  "additional_instructions": "Use a lower camera angle",
+  "idempotency_key": "revision-attempt-001"
+}
+```
 
-Review decisions do not automatically launch another model execution or mark
-the Activity complete.
+The idempotency key is required. The authenticated creator ID is injected and cannot be supplied in the body. The callback must return the same revision result when the same key is repeated for the same source review.
+
+The route does not implement provider execution, persistence, tenant authorization, or identity integration. See `docs/operations/revision-workflow.md` for callback requirements and recovery behavior.
 
