@@ -28,9 +28,23 @@ __all__ = [
     "ReviewRecord",
     "ReviewStatus",
     "ReviewStore",
+    "RevisionExecution",
+    "RevisionExecutionPort",
+    "RevisionInProgressError",
+    "RevisionRecordStore",
+    "RevisionResult",
+    "RevisionReviewCreator",
+    "RevisionSource",
+    "RevisionSourceStore",
     "WorkerDirectory",
     "WorkerNotFoundError",
     "WorkflowSnapshot",
     "WorkflowStore",
 ]
+
+from .revision_workflow import (
+    RevisionExecution, RevisionExecutionPort, RevisionInProgressError,
+    RevisionRecordStore, RevisionResult, RevisionReviewCreator, RevisionSource,
+    RevisionSourceStore,
+)
 

@@ -77,3 +77,66 @@ persistence error translation without requiring a Google Cloud project.
 updates. Reviewer authentication and authorization remain responsibilities
 of the calling application.
 
+## Revision persistence (Phase 29)
+
+`FirestoreRevisionRecordStore` implements the Runtime `RevisionRecordStore`
+port. It stores reservation and completed-result records in `revision_attempts`
+so a repeated `(source_review_id, idempotency_key)` can be rejected while
+in-progress or safely replayed after completion.
+
+```python
+from novacore.firestore import FirestoreRevisionRecordStore
+
+revision_store = FirestoreRevisionRecordStore()
+```
+
+Unfinished reservations are not automatically expired. Inspect the linked
+execution lifecycle before releasing one; the external provider may already
+have completed the call.
+
+
+## Revision integration (Phase 30)
+
+- `FirestoreRevisionSourceStore` resolves a review to its exact Execution and lifecycle output, with required host authorization and original-input loader callbacks.
+- `StoreRevisionReviewCreator` creates the next `PENDING` review through the existing `ReviewStore` port.
+- `FirestoreRevisionRecordStore` (Phase 29) stores atomic revision reservations and completed revision links.
+
+The execution adapter is `CallbackRevisionExecutionPort` in `novacore-runtime`. Its host callback must use the existing Runtime execution lifecycle; the Firestore package does not invoke agent providers directly.
+
+See `docs/architecture/phase-30-revision-source-and-execution-integration.md` and `docs/operations/revision-integration.md` for required host wiring and security boundaries.
+
+
+# Novacore Phase 33 — Firestore Emulator Revision Validation
+
+Phase 33 adds opt-in integration coverage for the existing Firestore revision adapters.
+
+## What changed
+
+- Added `tests/integration/test_revision_firestore_emulator.py` under `packages/novacore-firestore`.
+- Exported the existing revision adapters from `novacore.firestore` for a consistent public package surface.
+- Added architecture and operations documentation for the Emulator test boundary and run commands.
+
+## What the tests cover
+
+1. Concurrent attempts to reserve one revision idempotency key.
+2. Safe replay after a revision reservation has been completed.
+3. Loading the exact source review and execution from Firestore-backed workflow/review records.
+4. Host authorization callback behavior and execution-input loading.
+5. Creating and reading the next `PENDING` human review.
+
+## Plain-English explanation
+
+The Emulator is a local Firestore-compatible service. These tests check that the database behavior—not just an in-memory fake—protects a revision from being started twice with the same key. They also check that a revision uses the exact execution that the reviewer commented on, and that the next review is saved as waiting for human approval.
+
+The tests do not generate images or call an AI model. They test persistence and adapter wiring only. Your application still supplies the authorization rules and the original execution input loader.
+
+## Run
+
+See `docs/operations/firestore-emulator-revision-tests.md`.
+
+## Validation in this build environment
+
+- Existing Firestore revision unit/fake-client tests: passed.
+- Emulator tests: not executed because `google-cloud-firestore` and `FIRESTORE_EMULATOR_HOST` are not available in this environment.
+- Python compilation: passed.
+

@@ -54,3 +54,13 @@ Runtime exposes `ReviewRecord`, `ReviewStatus`, `ReviewStore`, and
 Runtime workflow metadata, not Kernel entities. Decisions are terminal per
 review record; create a new review record for a later revision.
 
+# novacore-runtime
+
+Runtime orchestration and ports for Novacore workflows.
+
+## Revision execution bridge
+
+`CallbackRevisionExecutionPort` adapts a host application's existing Runtime execution function to the `RevisionExecutionPort` contract. The callback must create a distinct Execution, persist its lifecycle through the existing WorkflowStore path, and forward the idempotency key. It must not call a provider SDK directly.
+
+The revision workflow service and its reservation contracts are documented in `docs/architecture/phase-28-revision-orchestration-integration.md` and `docs/architecture/phase-30-revision-source-and-execution-integration.md`.
+

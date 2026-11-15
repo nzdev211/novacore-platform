@@ -18,5 +18,14 @@ __all__ = [
     "StoryboardWorkflowIds",
     "StoryboardWorkflowResult",
     "StoryboardWorkflowService",
+    "RevisionConflictError",
+    "RevisionNotAllowedError",
+    "RevisionWorkflowError",
+    "RevisionWorkflowService",
 ]
+
+from .revision_workflow import (
+    RevisionConflictError, RevisionNotAllowedError, RevisionWorkflowError,
+    RevisionWorkflowService,
+)
 
