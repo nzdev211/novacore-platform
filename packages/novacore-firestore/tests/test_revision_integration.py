@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
-from novacore.kernel.identity import ActivityId, AssignmentId, ExecutionId, WorkId
+from novacore.kernel.identity import ActivityId, AssignmentId, ExecutionId, WorkId, WorkerId
 from novacore.runtime.ports import ReviewStatus
 from novacore.firestore.revision_source_store import FirestoreRevisionSourceStore
 from novacore.firestore.revision_review_creator import StoreRevisionReviewCreator
@@ -41,7 +41,7 @@ def make_source_parts(status=ReviewStatus.CHANGES_REQUESTED):
         execution_id=execution_id, status=status, feedback="Make the lighting warmer",
     )
     execution = SimpleNamespace(id=execution_id, assignment_id=assignment_id)
-    assignment = SimpleNamespace(id=assignment_id, work_id=work_id)
+    assignment = SimpleNamespace(id=assignment_id, work_id=work_id, worker_id=WorkerId("worker-1"))
     workflow = SimpleNamespace(
         activity=SimpleNamespace(id=activity_id), executions=(execution,), assignments=(assignment,),
     )
@@ -62,6 +62,8 @@ def test_source_store_loads_exact_execution_and_input():
     )
     source = store.load_revision_source(review_id="review-1", creator_id="creator-1")
     assert source.execution_id == "execution-1"
+    assert source.assignment_id == "assignment-1"
+    assert source.worker_id == "worker-1"
     assert source.execution_input == {"brief": "A sci-fi scene"}
     assert source.execution_output == {"shot_spec": {"camera": "wide"}}
     assert source.review_feedback == "Make the lighting warmer"

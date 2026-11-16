@@ -83,6 +83,8 @@ class FirestoreRevisionSourceStore(RevisionSourceStore):
                 review_feedback=review.feedback,
                 execution_input=dict(execution_input),
                 execution_output=dict(lifecycle.output),
+                assignment_id=assignment.id.value,
+                worker_id=assignment.worker_id.value,
             )
         except PersistenceError:
             raise

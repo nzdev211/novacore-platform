@@ -21,6 +21,8 @@ class RevisionSource:
     review_feedback: str | None
     execution_input: Mapping[str, object]
     execution_output: Mapping[str, object]
+    assignment_id: str | None = None
+    worker_id: str | None = None
 
     def __post_init__(self) -> None:
         for name in ("review_id", "activity_id", "work_id", "execution_id", "review_status"):
@@ -31,6 +33,10 @@ class RevisionSource:
             raise TypeError("execution_input must be a mapping.")
         if not isinstance(self.execution_output, Mapping):
             raise TypeError("execution_output must be a mapping.")
+        for name in ("assignment_id", "worker_id"):
+            value = getattr(self, name)
+            if value is not None and (not isinstance(value, str) or not value.strip()):
+                raise ValueError(f"{name} must be a non-empty string or None.")
 
 
 @dataclass(frozen=True, slots=True)

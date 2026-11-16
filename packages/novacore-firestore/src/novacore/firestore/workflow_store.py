@@ -180,7 +180,14 @@ class FirestoreWorkflowStore(WorkflowStore):
         return self._document_data(self._ref(collection, identifier).get())
 
     def _load_many(self, collection: str, field: str, value: str) -> list[dict[str, Any]]:
-        query = self._client.collection(collection).where(field, "==", value)
+        collection_ref = self._client.collection(collection)
+        try:
+            from google.cloud.firestore_v1.base_query import FieldFilter
+        except ImportError:
+            # Lightweight fake clients used in unit tests do not require the SDK.
+            query = collection_ref.where(field, "==", value)
+        else:
+            query = collection_ref.where(filter=FieldFilter(field, "==", value))
         return [dict(item.to_dict()) for item in query.stream() if item.to_dict() is not None]
 
     def transition_execution(
