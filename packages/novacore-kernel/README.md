@@ -44,4 +44,3 @@ PYTHONPATH=src pytest -q
 ## Deferred by design
 
 Execution status, result, timestamps, retry policy, persistence, aggregate hydration, orchestration, and ID generation are not part of this v0.1 model. The prior `conversation` design is superseded by `context` in the active model. Historical planning/specification files are retained for traceability and should not be treated as implemented API.
-

@@ -23,4 +23,3 @@ namespaces = true
 pythonpath = ["src"]
 testpaths = ["tests"]
 addopts = "-ra"
-
