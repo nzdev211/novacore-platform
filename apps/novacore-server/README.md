@@ -31,8 +31,10 @@ uvicorn novacore_server.main:app --host 127.0.0.1 --port 8000 --reload
 ```bash
 NOVACORE_API_URL=http://127.0.0.1:8000 python3 -m uvicorn novacore_server.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-```bash
+
 Or using the installed CLI entrypoint
+
+```bash
 novacore-server
 ```
 
