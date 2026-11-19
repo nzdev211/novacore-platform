@@ -1,0 +1,2 @@
+[console_scripts]
+novacore-server = novacore_server.cli:main

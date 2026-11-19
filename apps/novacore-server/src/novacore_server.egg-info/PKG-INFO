@@ -1,0 +1,116 @@
+Metadata-Version: 2.4
+Name: novacore-server
+Version: 0.1.0
+Summary: Runnable application server and composition root for Novacore Platform
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Provides-Extra: server
+Requires-Dist: fastapi>=0.110; extra == "server"
+Requires-Dist: uvicorn[standard]>=0.25; extra == "server"
+Provides-Extra: test
+Requires-Dist: pytest>=8; extra == "test"
+Requires-Dist: httpx>=0.27; extra == "test"
+
+# novacore-server
+
+Runnable application host for Novacore Platform. This package is the composition root: it will assemble the inbound FastAPI adapter, Runtime services, and infrastructure/provider adapters.
+
+## Phase 40 scope
+
+This phase establishes only the server package, environment configuration, FastAPI application factory, ASGI entry point, and local startup command. It intentionally does not initialize Firestore or Google ADK and does not register business API routes. Those responsibilities are added in the next phases after the composition contracts are wired.
+
+## Install and run
+
+From the repository root:
+
+```bash
+python -m pip install -e 'apps/novacore-server[server]'
+cp apps/novacore-server/.env.example apps/novacore-server/.env
+novacore-server
+```
+
+Alternatively:
+
+```bash
+uvicorn novacore_server.main:app --app-dir apps/novacore-server/src --host 127.0.0.1 --port 8000 --reload
+```
+
+If installed editable, the module can also be started with:
+
+```bash
+uvicorn novacore_server.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+The OpenAPI document is available at `http://127.0.0.1:8000/openapi.json`. No health or business endpoints are introduced in Phase 40.
+
+## Configuration
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `NOVACORE_APP_NAME` | `Novacore Platform` | OpenAPI application title |
+| `NOVACORE_ENVIRONMENT` | `development` | Environment name; development enables CLI reload |
+| `NOVACORE_HOST` | `127.0.0.1` | Bind address |
+| `NOVACORE_PORT` | `8000` | Bind port |
+| `NOVACORE_LOG_LEVEL` | `info` | Uvicorn log level |
+| `NOVACORE_CORS_ORIGINS` | empty | Comma-separated allowed browser origins |
+
+The server reads environment variables directly. The example `.env` file is documentation/template only; loading `.env` files is deliberately left to the deployment environment or shell in this phase.
+
+## Architecture boundary
+
+`novacore-server` is an application host, not a new Kernel or Runtime layer. It may depend on adapter packages and Runtime in later phases. Kernel and Runtime remain independent of FastAPI and infrastructure SDKs.
+
+# Novacore Server
+
+Runnable FastAPI host and composition root for Novacore Platform. The server
+constructs infrastructure adapters and injects them into Runtime services;
+Kernel and Runtime remain independent of FastAPI, Firestore SDK, and Google ADK.
+
+## Install from the repository root
+
+```bash
+python -m pip install -e packages/novacore-foundation
+python -m pip install -e packages/novacore-kernel
+python -m pip install -e packages/novacore-runtime
+python -m pip install -e 'packages/novacore-fastapi[fastapi]'
+python -m pip install -e 'packages/novacore-firestore[firestore]'
+python -m pip install -e 'packages/novacore-google-adk[google-adk]'
+python -m pip install -e 'apps/novacore-server[server]'
+```
+
+Install only the packages that exist in your checkout; `novacore-foundation`
+is listed separately because it is part of the agreed package layout.
+
+## Configure
+
+Copy `.env.example` to `.env` and export its values in your shell (or use your
+preferred environment loader). For the Firestore Emulator:
+
+```bash
+export FIRESTORE_EMULATOR_HOST=127.0.0.1:8089
+export GOOGLE_CLOUD_PROJECT=novacore-local
+```
+
+Google ADK execution is opt-in until the host supplies its actual agent. Set
+`NOVACORE_ADK_AGENT_FACTORY=your_package.module:build_agent`; the callable
+receives `ServerSettings` and must return a configured Google ADK Agent.
+
+## Run
+
+```bash
+novacore-server
+```
+
+The server listens at `http://127.0.0.1:8000`. Phase 42 registers the HTTP
+routers. This phase constructs the shared Firestore stores, HumanReviewService,
+and (when configured) GoogleADKAgentExecutor and AgentRevisionExecutionPort.
+
+## Important integration boundary
+
+The host must still provide authentication/authorization, revision-source
+authorization, execution-input loading, review-context loading, and revision
+history loading. These are application-specific policies and data sources;
+the server does not invent them. Revision orchestration service registration is
+blocked until the missing Runtime `services/revision_workflow.py` implementation
+is restored in the repository.
+
