@@ -28,6 +28,8 @@ If installed editable, the module can also be started with:
 uvicorn novacore_server.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
+Using Python module with Uvicorn
+
 ```bash
 NOVACORE_API_URL=http://127.0.0.1:8000 python3 -m uvicorn novacore_server.main:app --host 127.0.0.1 --port 8000 --reload
 ```
