@@ -9,6 +9,12 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 
 def _parse_origins(value: str | None) -> tuple[str, ...]:
     if not value:
@@ -24,6 +30,10 @@ class ServerSettings:
     port: int = 8000
     log_level: str = "info"
     cors_origins: tuple[str, ...] = ()
+    firestore_project: str = "novacore-local"
+    google_adk_app_name: str = "novacore"
+    google_adk_session_backend: str = "memory"
+    google_adk_agent_factory: str | None = None
 
     @classmethod
     def from_env(cls) -> "ServerSettings":
@@ -44,6 +54,14 @@ class ServerSettings:
         if log_level not in {"critical", "error", "warning", "info", "debug", "trace"}:
             raise ValueError("NOVACORE_LOG_LEVEL must be a supported logging level.")
 
+        firestore_project = (
+            os.getenv("GOOGLE_CLOUD_PROJECT")
+            or os.getenv("NOVACORE_FIRESTORE_PROJECT")
+            or "novacore-local"
+        ).strip()
+
+        agent_factory = os.getenv("NOVACORE_ADK_AGENT_FACTORY", "").strip() or None
+
         return cls(
             app_name=os.getenv("NOVACORE_APP_NAME", "Novacore Platform").strip(),
             environment=environment,
@@ -51,5 +69,8 @@ class ServerSettings:
             port=port,
             log_level=log_level,
             cors_origins=_parse_origins(os.getenv("NOVACORE_CORS_ORIGINS")),
+            firestore_project=firestore_project,
+            google_adk_app_name=os.getenv("NOVACORE_ADK_APP_NAME", "novacore").strip(),
+            google_adk_session_backend=os.getenv("NOVACORE_ADK_SESSION_BACKEND", "memory").strip(),
+            google_adk_agent_factory=agent_factory,
         )
-

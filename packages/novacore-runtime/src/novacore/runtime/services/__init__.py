@@ -1,5 +1,6 @@
 from .revision_execution import AgentRevisionExecutionPort
 from .execution_recovery import ExecutionRecoveryDecision, ExecutionRecoveryService, RecoveryAction
+from .human_review import HumanReviewService, ReviewConflictError, ReviewNotFoundError
 from .create_storyboard_workflow import (
     CreateStoryboardWorkflow,
     StoryboardWorkflowIds,
@@ -18,7 +19,10 @@ __all__ = [
     "CreateStoryboardWorkflow",
     "ExecutionRecoveryDecision",
     "ExecutionRecoveryService",
+    "HumanReviewService",
     "RecoveryAction",
+    "ReviewConflictError",
+    "ReviewNotFoundError",
     "RevisionConflictError",
     "RevisionNotAllowedError",
     "RevisionWorkflowError",
@@ -27,4 +31,3 @@ __all__ = [
     "StoryboardWorkflowResult",
     "StoryboardWorkflowService",
 ]
-

@@ -78,4 +78,3 @@ class HumanReviewService:
         except Exception as exc:
             raise ReviewConflictError("Review was concurrently changed; reload before deciding.") from exc
         return updated
-

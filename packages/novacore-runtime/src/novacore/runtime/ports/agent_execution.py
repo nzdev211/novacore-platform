@@ -14,6 +14,7 @@ class AgentExecutionRequest:
     assignment_id: AssignmentId
     worker_id: WorkerId
     input: Mapping[str, object] = field(default_factory=dict)
+    idempotency_key: str | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.execution_id, ExecutionId):
@@ -24,6 +25,8 @@ class AgentExecutionRequest:
             raise TypeError("worker_id must be a WorkerId.")
         if not isinstance(self.input, Mapping):
             raise TypeError("input must be a mapping.")
+        if self.idempotency_key is not None and not isinstance(self.idempotency_key, str):
+            raise TypeError("idempotency_key must be a string or None.")
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,4 +50,3 @@ class AgentExecutor(Protocol):
     def execute(self, request: AgentExecutionRequest) -> AgentExecutionResult:
         """Run one agent execution; progress/cancellation are deferred."""
         ...
-

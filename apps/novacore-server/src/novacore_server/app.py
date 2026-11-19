@@ -47,5 +47,21 @@ def create_app(settings: ServerSettings | None = None):
             allow_headers=["Authorization", "Content-Type", "Cookie", "Idempotency-Key"],
         )
 
-    return app
+    @app.get("/health", tags=["ops"])
+    def health():
+        return {
+            "status": "ok",
+            "app": resolved_settings.app_name,
+            "environment": resolved_settings.environment,
+        }
 
+    @app.get("/", tags=["ops"])
+    def root():
+        return {
+            "name": resolved_settings.app_name,
+            "version": "0.1.0",
+            "docs": "/docs",
+            "health": "/health",
+        }
+
+    return app
