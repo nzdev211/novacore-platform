@@ -42,6 +42,12 @@ novacore-server
 
 The OpenAPI document is available at `http://127.0.0.1:8000/openapi.json`. No health or business endpoints are introduced in Phase 40.
 
+Run the server with your Firestore Emulator configured
+
+```bash
+pytest apps/novacore-server/tests -q
+```
+
 ## Configuration
 
 | Variable | Default | Purpose |
@@ -74,7 +80,7 @@ python -m pip install -e packages/novacore-runtime
 python -m pip install -e 'packages/novacore-fastapi[fastapi]'
 python -m pip install -e 'packages/novacore-firestore[firestore]'
 python -m pip install -e 'packages/novacore-google-adk[google-adk]'
-python -m pip install -e 'apps/novacore-server[server]'
+python -m pip install -e 'apps/novacore-server[server,test]'
 ```
 
 Install only the packages that exist in your checkout; `novacore-foundation`
